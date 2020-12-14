@@ -6,7 +6,7 @@ class QueriesDone(Model):
     table = 'queries_done'
 
     # Fillable fields
-    fillable = ['query', 'time']
+    fillable = ['query', 'time', 'success']
 
 
 for query in QueriesDone.all():

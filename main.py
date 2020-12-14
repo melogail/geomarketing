@@ -98,10 +98,17 @@ for index, row in df.iterrows():
                         print('No more pages to load')
                         break
             except:
+                print("Query Failed!")
                 print("Cannot find 'a[data-cid]' elements!")
+                QueriesDone.insert([[query, datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'), 0]])
+                driver.quit()
+                continue
         except:
-            driver.quit()
+            print("Query Failed!")
             print("Unable to Find 'View all' button!")
+            QueriesDone.insert([[query, datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'), 0]])
+            driver.quit()
+            continue
 
         # storing cids
         if len(cids) > 0:
@@ -116,7 +123,7 @@ for index, row in df.iterrows():
             print(f'Data successfully saved')
 
             # Saving query in database
-            QueriesDone.insert([[query, datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')]])
+            QueriesDone.insert([[query, datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'), 1]])
 
             # printing query time duration
             end_time = datetime.datetime.now()
