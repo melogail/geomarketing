@@ -1,9 +1,22 @@
+#
+# Database configurations
+#
 db_config = {
-    'host': 'localhost',
-    'user': 'root',
-    'password': '',
-    'name': 'geomarketing_automation',
-    'port': 3306,
-    'charset': 'utf8',
-    'use_unicode': True
+    'host': 'localhost',  # Database host
+    'user': 'root',  # Database user
+    'password': '',  # Database password
+    'name': 'geomarketing_automation',  # Database name
+    'port': 3306,  # Database port
+    'charset': 'utf8',  # Database charset
+    'use_unicode': True  # Database apply using unicode
+}
+
+#
+# Web browser configurations
+# TODO:: Still not used
+#
+web_driver_config = {
+    'chrome': {
+        'path': '.\chromedriver.exe'
+    }
 }

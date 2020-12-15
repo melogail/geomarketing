@@ -16,8 +16,10 @@ from models.Shiakha import Shiakha
 from models.Quism import Quism
 from models.Governorate import Governorate
 
+# Reading data csv file
 df = pd.read_csv('clear_data_gathering.csv', sep=',')
 
+# Type to search for
 types = ['GYM',
          'Fruit and Vegetable Store',
          'Grocery Store',
@@ -33,6 +35,7 @@ types = ['GYM',
          'ATM',
          'BANK']
 
+# Starting program and looping through dataframe rows
 for index, row in df.iterrows():
     for type in types:
         # Building search query
@@ -52,7 +55,7 @@ for index, row in df.iterrows():
             continue
 
         print('{:=^50}'.format(" Start of Query "), "\n")
-        # Saving sart time
+        # Saving start time
         start_time = datetime.datetime.now()
         s = start_time.strftime('%H:%M:%S')
         print(f'{query}, Query Start on: {s}')
