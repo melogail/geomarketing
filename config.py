@@ -17,6 +17,6 @@ db_config = {
 #
 web_driver_config = {
     'chrome': {
-        'path': '.\chromedriver.exe'
+        'path': '..\drivers\chromedriver.exe'
     }
 }

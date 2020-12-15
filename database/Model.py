@@ -13,7 +13,11 @@ class Model(object):
     # Table name
     table = ''
 
+    # Fillable data in table
     fillable = []
+
+    # Query
+    query = ''
 
     # data as dictionary
     data = dict()
@@ -24,7 +28,7 @@ class Model(object):
         cls.model.execute(q)
 
         result = []
-        fetch =  cls.model.fetchall()
+        fetch = cls.model.fetchall()
         for record in fetch:
             rec_result = []
             for rec in record:
@@ -34,7 +38,6 @@ class Model(object):
             result.append(rec_result)
 
         return result
-
 
     @classmethod
     def insert(cls, values):
@@ -77,3 +80,51 @@ class Model(object):
         :return:
         """
         return self.model.lastrowid
+
+    @classmethod
+    def get(cls):
+        """
+        Return collection of results from query
+
+        :return:
+        """
+        query = f'SELECT * FROM {cls.table} {cls.query}'
+        cls.model.execute(query)
+        return cls.model.fetchall()
+
+    @classmethod
+    def first(cls):
+        """
+        Return the first result of the query.
+
+        :return:
+        """
+        query = f'SELECT * FROM {cls.table} {cls.query}'
+        cls.model.execute(query)
+        return cls.model.fetchone()
+
+    @classmethod
+    def where(cls, where):
+        """
+        Add where clause to query, use with get
+
+        :param where:
+        :return:
+        """
+        # Initialize the where clue
+        query = 'WHERE '
+
+        try:
+            # Loop through where clause dictionary
+            if type(where) == dict:
+                for index, (key, value) in enumerate(where.items()):
+                    if (index + 1) != len(where):
+                        query += f'{key} = "{value}" AND '
+                    else:
+                        query += f'{key} = "{value}"'
+
+                cls.query = query
+                return cls
+        except Exception as e:
+            print("Error! make sure your where clause are in dictionary format", str(e))
+            return False

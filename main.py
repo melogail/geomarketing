@@ -12,9 +12,7 @@ from selenium.webdriver.support import expected_conditions as EC
 # import models
 from models.Cids import Cids
 from models.QueriesDone import QueriesDone
-from models.Shiakha import Shiakha
-from models.Quism import Quism
-from models.Governorate import Governorate
+
 
 # Reading data csv file
 df = pd.read_csv('clear_data_gathering.csv', sep=',')

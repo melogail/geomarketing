@@ -7,7 +7,3 @@ class QueriesDone(Model):
 
     # Fillable fields
     fillable = ['query', 'time', 'success']
-
-
-for query in QueriesDone.all():
-    print('GYM in قسم  ثان مدينة نصر, محافظة القاهرة' in query[1])
