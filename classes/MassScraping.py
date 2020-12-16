@@ -2,7 +2,7 @@ from classes.Scrap import Scrap
 from classes.QueryBuilder import QueryBuilder
 
 
-class MassScrapping(Scrap):
+class MassScraping(Scrap):
     def __init__(self, queries_list):
         super().__init__()
         self.qb = QueryBuilder()
@@ -15,6 +15,14 @@ class MassScrapping(Scrap):
         self.queries = self.qb.get_query()
 
     def start(self, ask_for_rerun=False):
+        """
+        Start running mass scraping, you can prompt every saved
+        query and ask for rerun the query again by setting the
+        "ask_for_rerun" option to True <default: False>
+
+        :param ask_for_rerun:
+        :return:
+        """
         for query in self.queries:
             # query check
             result = self.qb.check_query(query)
@@ -35,7 +43,3 @@ class MassScrapping(Scrap):
                         continue
             else:
                 self.run(query)
-
-
-test = MassScrapping(['ATM in قسم ثان القاهرة الجديدة, محافظة القاهرة'])
-test.start(True)

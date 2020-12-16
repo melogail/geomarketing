@@ -1,15 +1,16 @@
-#
-# Main application bootstrap file
-# TODO:: Create the bootstrap file.
-#
+from classes.MassScraping import MassScraping
 
-def mass_scrapping():
+
+def mass_scrapping(query_list, ask_for_rerun=False):
     """
     Generate mass scrapping for Google Maps landmarks, and save
     data to the database.
+    This function must accept a list of queries to run.
+
     :return:
     """
-    pass
+    scrap = MassScraping(query_list)
+    scrap.start(ask_for_rerun)
 
 
 def scrap_for_single_query():
