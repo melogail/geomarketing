@@ -23,6 +23,8 @@ types = ['GYM',
 
 # Starting program and looping through dataframe rows
 queries = []
+
+# Building queries list
 for index, row in df.iterrows():
     for type in types:
         # Building search query
