@@ -29,10 +29,13 @@ for index, row in df.iterrows():
     for type in types:
         # Building search query
         rerun_query = True
-        query = f'{type} in {row["quism"]}, {row["governorate"]}'.strip()
+        query = {}
+        query['query'] = f'{type} in {row["quism"]}, {row["governorate"]}'.strip()
+        query['query'] = re.sub(' +', ' ', query['query'])
+        query['type'] = type
         # Remove any extra spaces in the query
-        query = re.sub(' +', ' ', query)
         queries.append(query)
 
 # Run mass scraping
 mass_scrapping(queries)
+#details_scraping('8363212100483500972')

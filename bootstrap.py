@@ -1,4 +1,5 @@
 from classes.MassScraping import MassScraping
+from classes.DetailsScraping import DetailsScraping
 
 
 def mass_scrapping(query_list, ask_for_rerun=False):
@@ -28,3 +29,12 @@ def scrap_custom_query(query):
     :return:
     """
     pass
+
+def details_scraping(query):
+    """
+    Scrap single CID for details
+    :param query:
+    :return:
+    """
+    scrap = DetailsScraping(query)
+    scrap.start()
