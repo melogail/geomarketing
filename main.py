@@ -74,7 +74,7 @@ elif scraping_type == '2':
         scraping_type = input('Your choice: ')
 
     if landmark_scrap == '1':
-        for cid in Cids.all():
+        for cid in Cids.where({'type': 'Nutritionist'}).get():
             details_scraping(cid[1])
 
     elif landmark_scrap == '2':
