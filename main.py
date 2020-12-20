@@ -60,6 +60,7 @@ while scraping_type != '1' and scraping_type != '2':
 if scraping_type == '1':
     # Run mass scraping
     mass_scrapping(queries)
+
 elif scraping_type == '2':
     print('\nWhat kind of landmark data you would like to scrap?')
     print('{:=^50}'.format('Please choose from the following types'))

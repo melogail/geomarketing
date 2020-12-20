@@ -13,14 +13,27 @@ from models.Cids import Cids
 
 # TODO:: Fix running scrap class on every call without checking performed queries
 class Scrap(object):
+
+    # driver object
+    driver = None
+
+    # Browser type
+    browser_type = 'chrome'
+
     def __init__(self, browser_type='chrome'):
-        if browser_type == 'chrome':
+        #TODO:: Set how to choose browser type
+        pass
+
+    def launch_driver(self):
+        if self.browser_type == 'chrome':
             driver_path = web_driver_config['chrome']['path']
             driver_options = webdriver.ChromeOptions()
             driver_options.add_argument("--lang=en_UK")
-            self.driver = webdriver.Chrome(driver_path, chrome_options=driver_options)
+            return webdriver.Chrome(driver_path, chrome_options=driver_options)
 
     def run(self, query):
+
+        self.driver = self.launch_driver()
         # Check the type of scraping running
         # MassScraping Class
         if self.__class__.__name__ == 'MassScraping':

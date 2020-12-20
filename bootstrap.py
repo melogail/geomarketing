@@ -30,6 +30,7 @@ def scrap_custom_query(query):
     """
     pass
 
+
 def details_scraping(query):
     """
     Scrap single CID for details
