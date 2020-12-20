@@ -15,5 +15,9 @@ class DetailsScraping(Scrap):
         self.query = self.db.get_query()
 
     def start(self, display=False):
-
-        self.run(self.query)
+        # TODO:: Code the "display data" option.
+        if self.db.check_query(self.query):
+            print(f'"{self.query}" query already done!')
+            self.driver.quit()
+        else:
+            self.run(self.query)

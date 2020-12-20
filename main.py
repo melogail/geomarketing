@@ -1,6 +1,7 @@
 from bootstrap import *
 import pandas as pd
 import re
+from models.Cids import Cids
 
 # Reading data csv file
 df = pd.read_csv('clear_data_gathering.csv', sep=',')
@@ -36,6 +37,47 @@ for index, row in df.iterrows():
         # Remove any extra spaces in the query
         queries.append(query)
 
-# Run mass scraping
-mass_scrapping(queries)
-#details_scraping('8363212100483500972')
+
+# Main section
+# Prompting user for scrapping type
+print('{:*^50}'.format('*'))
+print('{:*^50}'.format(' Welcome to Google Maps Scrapping Tool '))
+print('{:*^50}'.format('*'))
+print('')
+print('What type of scraping you would like to perform?')
+print('{:=^50}'.format('Please choose from the following types'))
+print('')
+print('{:<3} {}'.format('[1]', 'Mass Scrapping'))
+print('{:<3} {}'.format('[2]', 'Landmark Details Scrapping'))
+scraping_type = input('Your choice: ')
+
+# Choose main scraping type
+while scraping_type != '1' and scraping_type != '2':
+    print("\nPleas select right choice!")
+    scraping_type = input('Your choice: ')
+
+# choose sub-scraping type if exist
+if scraping_type == '1':
+    # Run mass scraping
+    mass_scrapping(queries)
+elif scraping_type == '2':
+    print('\nWhat kind of landmark data you would like to scrap?')
+    print('{:=^50}'.format('Please choose from the following types'))
+    print('')
+    print('{:<3} {}'.format('[1]', 'All my landmarks saved in my database'))
+    print('{:<3} {}'.format('[2]', 'Single landmark from my choice'))
+    landmark_scrap = input('Your choice: ')
+
+    # validate choice
+    while scraping_type != '1' and scraping_type != '2':
+        print("\nPleas select right choice!")
+        scraping_type = input('Your choice: ')
+
+    if landmark_scrap == '1':
+        for cid in Cids.all():
+            details_scraping(cid[1])
+
+    elif landmark_scrap == '2':
+        print('Sorry, This option is not functioning yet!!')
+        print('Program terminated...')
+        exit()

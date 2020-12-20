@@ -6,4 +6,4 @@ class QueriesDone(Model):
     table = 'queries_done'
 
     # Fillable fields
-    fillable = ['query', 'time', 'success']
+    fillable = ['query', 'time', 'success', 'type']
