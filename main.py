@@ -7,20 +7,20 @@ from models.Cids import Cids
 df = pd.read_csv('clear_data_gathering.csv', sep=',')
 
 # Type to search for
-types = ['GYM',
-         'Fruit and Vegetable Store',
+types = ['GYM', # done
+         'Fruit and Vegetable Store', # postponed
          'Grocery Store',
-         'Nutritionist',
-         'Organic Food Store',
+         'Nutritionist',    # done
+         'Organic Food Store',  # done
          'Physical therapy clinic',
          'Physician',
-         'Restaurant',
-         'Shopping Mall',
-         'store',
-         'Supermarket',
-         'Vitamin & Supplements Store',
-         'ATM',
-         'BANK']
+         'Restaurant', # =>
+         'Shopping Mall', # =>
+         'store',   # postponed
+         'Supermarket', # =>
+         'Vitamin & Supplements Store', # done
+         'ATM', # =>
+         'BANK'] # =>
 
 # Starting program and looping through dataframe rows
 queries = []
@@ -75,7 +75,7 @@ elif scraping_type == '2':
         scraping_type = input('Your choice: ')
 
     if landmark_scrap == '1':
-        for cid in Cids.all():
+        for cid in Cids.where({'type': 'Physician'}).get():
             details_scraping(cid[1])
 
     elif landmark_scrap == '2':
