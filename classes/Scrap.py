@@ -7,6 +7,7 @@ from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 from models.QueriesDone import QueriesDone
 from models.Landmark import Landmark
 from models.Cids import Cids
@@ -29,7 +30,10 @@ class Scrap(object):
             driver_path = web_driver_config['chrome']['path']
             driver_options = webdriver.ChromeOptions()
             driver_options.add_argument("--lang=en_UK")
-            return webdriver.Chrome(driver_path, chrome_options=driver_options)
+            driver_options.add_argument('disable-infobars')
+            caps = DesiredCapabilities().CHROME
+            caps["pageLoadStrategy"] = "eager"  #  complete
+            return webdriver.Chrome(driver_path, chrome_options=driver_options, desired_capabilities=caps)
 
     def run(self, query):
 
@@ -139,10 +143,9 @@ class Scrap(object):
         s = start_time.strftime('%H:%M:%S')
         print(f'Getting CID: {query} details, Query Start on: {s}')
         print("Navigating to Google Maps!")
-
-        # Open Google Search and enter the query
+        
         self.driver.get(f'https://www.google.com/maps?cid={query}')
-
+        
         try:
             # Set data variable
             landmark_details = []

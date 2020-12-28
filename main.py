@@ -82,3 +82,4 @@ elif scraping_type == '2':
         print('Sorry, This option is not functioning yet!!')
         print('Program terminated...')
         exit()
+
