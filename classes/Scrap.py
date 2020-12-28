@@ -29,6 +29,7 @@ class Scrap(object):
             driver_path = web_driver_config['chrome']['path']
             driver_options = webdriver.ChromeOptions()
             driver_options.add_argument("--lang=en_UK")
+            driver_options.add_argument('disable-infobars')
             return webdriver.Chrome(driver_path, chrome_options=driver_options)
 
     def run(self, query):
