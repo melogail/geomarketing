@@ -75,6 +75,7 @@ elif scraping_type == '2':
         scraping_type = input('Your choice: ')
 
     if landmark_scrap == '1':
+        print("\nCollecting CIDs already scraped...")
         for cid in Cids.all():
             details_scraping(cid[1])
 

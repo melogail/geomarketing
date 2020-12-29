@@ -40,11 +40,16 @@ class Scrap(object):
         self.driver = self.launch_driver()
         # Check the type of scraping running
         # MassScraping Class
-        if self.__class__.__name__ == 'MassScraping':
-            self.mass_scrap(query)
+        try:
+            if self.__class__.__name__ == 'MassScraping':
+                self.mass_scrap(query)
 
-        elif self.__class__.__name__ == 'DetailsScraping':
-            self.details_scrap(query)
+            elif self.__class__.__name__ == 'DetailsScraping':
+                self.details_scrap(query)
+        except:
+            # close connection after all done
+            QueriesDone.close_connection()
+
 
     def mass_scrap(self, query):
         """
@@ -130,6 +135,9 @@ class Scrap(object):
             print("Unable to Find 'View all' button!")
             QueriesDone.insert([[query['query'], datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'), 0, 'cid']])
             # self.driver.quit()
+
+            # close connection after all done
+            QueriesDone.close_connection()
 
     def details_scrap(self, query):
         """

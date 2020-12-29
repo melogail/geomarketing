@@ -128,3 +128,9 @@ class Model(object):
         except Exception as e:
             print("Error! make sure your where clause are in dictionary format", str(e))
             return False
+
+
+    @classmethod
+    def close_connection(cls):
+        print('connection closed:', cls.conn)
+        cls.conn.close()
