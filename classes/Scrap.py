@@ -160,9 +160,11 @@ class Scrap(object):
             # Get current URL to extract coordinates
             time.sleep(3)
             flag = False
+            refresher = 0   # timer to refresh page if not loaded successfully
+
 
             # Get landmark coordinates
-            while flag == False:
+            while flag == False :
                 url = self.driver.current_url
                 try:
                     lat = re.search(r'(?<=!3d)(.*?)(?=!4d)', url).group(0)
@@ -170,6 +172,14 @@ class Scrap(object):
                     flag = True
                 except Exception as e:
                     print('Trying to get landmark coordinates!')
+                    if refresher < 10:
+                        refresher += 1
+                    elif refresher == 10:
+                        self.driver.refresh()
+                    else:
+                        print('This CID seems to be corrupted')
+                        return False
+
                     time.sleep(2)
 
             try:
