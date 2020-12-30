@@ -176,6 +176,7 @@ class Scrap(object):
                         refresher += 1
                     elif refresher == 10:
                         self.driver.refresh()
+                        refresher += 1
                     else:
                         print('This CID seems to be corrupted')
                         return False
