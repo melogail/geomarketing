@@ -76,7 +76,7 @@ elif scraping_type == '2':
 
     if landmark_scrap == '1':
         print("\nCollecting CIDs already scraped...")
-        for cid in Cids.all():
+        for cid in Cids.where({'type': 'BANK', 'is_corrupted': 0}).get():
             details_scraping(cid[1])
 
     elif landmark_scrap == '2':

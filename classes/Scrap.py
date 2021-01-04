@@ -179,6 +179,8 @@ class Scrap(object):
                         refresher += 1
                     else:
                         print('This CID seems to be corrupted')
+                        Cids.where({'cid': query}).update({'is_corrupted': 1})
+                        print('corrupted CID updated...')
                         return False
 
                     time.sleep(2)
