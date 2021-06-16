@@ -47,22 +47,8 @@ class Model(object):
         :param values:
         :return:
         """
-        fields = ''
-        delimiter = ''
-        for field in cls.fillable:
-            if len(cls.fillable) == 1 or field == cls.fillable[-1]:
-                fields += f'{field}'
-                if type(field) == str:
-                    delimiter += '%s'
-                elif type(field) == int:
-                    delimiter += '%d'
 
-            else:
-                fields += f'{field},'
-                if type(field) == str:
-                    delimiter += '%s,'
-                elif type(field) == int:
-                    delimiter += '%d,'
+        fields, delimiter = cls.setting_wildcards()
 
         cls.model.executemany(f'INSERT INTO {cls.table} ({fields}) values ({delimiter})', values)
         cls.conn.commit()
@@ -128,3 +114,46 @@ class Model(object):
         except Exception as e:
             print("Error! make sure your where clause are in dictionary format", str(e))
             return False
+
+    @classmethod
+    def update(cls, data):
+        query = ''
+        for index, (key, value) in enumerate(data.items()):
+            if (index + 1) != len(data):
+                query += f'{key} = "{value}" , '
+            else:
+                query += f'{key} = "{value}"'
+
+        cls.model.execute(f'UPDATE {cls.table} SET {query} {cls.query}')
+        cls.conn.commit()
+
+    @classmethod
+    def close_connection(cls):
+        print('connection closed:', cls.conn)
+        cls.conn.close()
+
+    @classmethod
+    def setting_wildcards(cls):
+        """
+        Set wildcards with table columns
+
+        :return: tuple
+        """
+        fields = ''
+        delimiter = ''
+        for field in cls.fillable:
+            if len(cls.fillable) == 1 or field == cls.fillable[-1]:
+                fields += f'{field}'
+                if type(field) == str:
+                    delimiter += '%s'
+                elif type(field) == int:
+                    delimiter += '%d'
+
+            else:
+                fields += f'{field},'
+                if type(field) == str:
+                    delimiter += '%s,'
+                elif type(field) == int:
+                    delimiter += '%d,'
+
+        return fields, delimiter

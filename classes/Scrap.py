@@ -7,6 +7,7 @@ from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 from models.QueriesDone import QueriesDone
 from models.Landmark import Landmark
 from models.Cids import Cids
@@ -30,18 +31,25 @@ class Scrap(object):
             driver_options = webdriver.ChromeOptions()
             driver_options.add_argument("--lang=en_UK")
             driver_options.add_argument('disable-infobars')
-            return webdriver.Chrome(driver_path, chrome_options=driver_options)
+            caps = DesiredCapabilities().CHROME
+            caps["pageLoadStrategy"] = "eager"  #  complete
+            return webdriver.Chrome(driver_path, chrome_options=driver_options, desired_capabilities=caps)
 
     def run(self, query):
 
         self.driver = self.launch_driver()
         # Check the type of scraping running
         # MassScraping Class
-        if self.__class__.__name__ == 'MassScraping':
-            self.mass_scrap(query)
+        try:
+            if self.__class__.__name__ == 'MassScraping':
+                self.mass_scrap(query)
 
-        elif self.__class__.__name__ == 'DetailsScraping':
-            self.details_scrap(query)
+            elif self.__class__.__name__ == 'DetailsScraping':
+                self.details_scrap(query)
+        except:
+            # close connection after all done
+            QueriesDone.close_connection()
+
 
     def mass_scrap(self, query):
         """
@@ -77,10 +85,11 @@ class Scrap(object):
                     data_cid_elements = WebDriverWait(self.driver, 10).until(
                         EC.visibility_of_all_elements_located((By.XPATH, "//a[@data-cid]"))
                     )
+                    
                     # Save cids in array
                     for cid in data_cid_elements:
-                        cids.append([cid.get_attribute('data-cid'), query['type']])
-
+                        cids.append([cid.get_attribute('data-cid'), query['type'], query['governorate'], query['quism'], query['shiakha']])
+                        
                     # move to next page
                     time.sleep(3)
                     try:
@@ -101,8 +110,12 @@ class Scrap(object):
 
                     # Saving CIDs in database
                     print(f'Saving CIDs to database')
-                    Cids.insert(cids)
-                    print(f'Data successfully saved')
+                                        
+                    try:
+                        Cids.insert(cids)
+                    except:
+                        print('Cannot Save CIDs')
+                    print(f'CIDs successfully saved')
 
                     # Saving query in database
                     QueriesDone.insert(
@@ -115,6 +128,7 @@ class Scrap(object):
                     print(f'Query Duration: {end_time - start_time}')
                     print("=".format({''}))
                     print('{:=^50}'.format(" End of Query "), '\n')
+                    self.driver.close()
                 else:
                     print('No CIDs saved!!')
             except:
@@ -127,6 +141,9 @@ class Scrap(object):
             print("Unable to Find 'View all' button!")
             QueriesDone.insert([[query['query'], datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'), 0, 'cid']])
             # self.driver.quit()
+
+            # close connection after all done
+            #QueriesDone.close_connection()
 
     def details_scrap(self, query):
         """
@@ -141,18 +158,21 @@ class Scrap(object):
         print(f'Getting CID: {query} details, Query Start on: {s}')
         print("Navigating to Google Maps!")
 
-        # Open Google Search and enter the query
-        self.driver.get(f'https://www.google.com/maps?cid={query}')
 
+
+        self.driver.get(f'https://www.google.com/maps?cid={query}')
+        
         try:
             # Set data variable
             landmark_details = []
             # Get current URL to extract coordinates
             time.sleep(3)
             flag = False
+            refresher = 0   # timer to refresh page if not loaded successfully
+
 
             # Get landmark coordinates
-            while flag == False:
+            while flag == False :
                 url = self.driver.current_url
                 try:
                     lat = re.search(r'(?<=!3d)(.*?)(?=!4d)', url).group(0)
@@ -160,13 +180,23 @@ class Scrap(object):
                     flag = True
                 except Exception as e:
                     print('Trying to get landmark coordinates!')
-                    time.sleep(2)
+                    if refresher < 10:
+                        refresher += 1
+                    elif refresher == 10:
+                        self.driver.refresh()
+                        refresher += 1
+                    else:
+                        print('This CID seems to be corrupted')
+                        Cids.where({'cid': query}).update({'is_corrupted': 1})
+                        print('corrupted CID updated...')
+                        return False
 
+                    time.sleep(2)
             try:
                 # Get landmark image
                 image_container = WebDriverWait(self.driver, 10).until(
                     EC.visibility_of_all_elements_located(
-                        (By.XPATH, '//button[contains(@class, "section-hero-header-image-hero")]'))
+                        (By.XPATH, '//div[contains(@class, "section-hero-header-image-hero")]'))
                 )
                 for el in image_container:
                     try:
@@ -180,7 +210,7 @@ class Scrap(object):
                 # Get landmark title
                 title_container = WebDriverWait(self.driver, 10).until(
                     EC.presence_of_element_located(
-                        (By.XPATH, '//h1[contains(@class, "section-hero-header-title-title")]'))
+                        (By.XPATH, '//h1[contains(@class, "header-title-title")]'))
                 )
                 name = title_container.find_element_by_tag_name('span').text
             except Exception as e:
@@ -235,23 +265,23 @@ class Scrap(object):
                 time.sleep(2)
                 for data in info_data:
                     if data.get_attribute('data-item-id') == 'address' and address_en is None:
-                        value = data.find_element_by_xpath('.//div[contains(@class, "__primary-text")]')
+                        value = data.find_element_by_xpath('.//div[contains(@class, "QSFF4-text")]')
                         address_en = value.text
 
                     elif data.get_attribute('data-item-id') == 'laddress' and address_ar is None:
-                        value = data.find_element_by_xpath('.//div[contains(@class, "__primary-text")]')
+                        value = data.find_element_by_xpath('.//div[contains(@class, "QSFF4-text")]')
                         address_ar = value.text
 
                     elif data.get_attribute('data-item-id') == 'authority' and website is None:
-                        value = data.find_element_by_xpath('.//div[contains(@class, "__primary-text")]')
+                        value = data.find_element_by_xpath('.//div[contains(@class, "QSFF4-text")]')
                         website = value.text
 
                     elif 'phone:' in data.get_attribute('data-item-id') and phone_number is None:
-                        value = data.find_element_by_xpath('.//div[contains(@class, "__primary-text")]')
+                        value = data.find_element_by_xpath('.//div[contains(@class, "QSFF4-text")]')
                         phone_number = value.text
 
                     elif data.get_attribute('data-item-id') == 'oloc' and plus_code is None:
-                        value = data.find_element_by_xpath('.//div[contains(@class, "__primary-text")]')
+                        value = data.find_element_by_xpath('.//div[contains(@class, "QSFF4-text")]')
                         plus_code = value.text
 
             except Exception as e:
