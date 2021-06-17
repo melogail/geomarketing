@@ -12,9 +12,9 @@ from models.QueriesDone import QueriesDone
 from models.Landmark import Landmark
 from models.Cids import Cids
 
+
 # TODO:: Fix running scrap class on every call without checking performed queries
 class Scrap(object):
-
     # driver object
     driver = None
 
@@ -22,7 +22,7 @@ class Scrap(object):
     browser_type = 'chrome'
 
     def __init__(self, browser_type='chrome'):
-        #TODO:: Set how to choose browser type
+        # TODO:: Set how to choose browser type
         pass
 
     def launch_driver(self):
@@ -32,7 +32,7 @@ class Scrap(object):
             driver_options.add_argument("--lang=en_UK")
             driver_options.add_argument('disable-infobars')
             caps = DesiredCapabilities().CHROME
-            caps["pageLoadStrategy"] = "eager"  #  complete
+            caps["pageLoadStrategy"] = "eager"  # complete
             return webdriver.Chrome(driver_path, chrome_options=driver_options, desired_capabilities=caps)
 
     def run(self, query):
@@ -49,7 +49,6 @@ class Scrap(object):
         except:
             # close connection after all done
             QueriesDone.close_connection()
-
 
     def mass_scrap(self, query):
         """
@@ -85,11 +84,12 @@ class Scrap(object):
                     data_cid_elements = WebDriverWait(self.driver, 10).until(
                         EC.visibility_of_all_elements_located((By.XPATH, "//a[@data-cid]"))
                     )
-                    
+
                     # Save cids in array
                     for cid in data_cid_elements:
-                        cids.append([cid.get_attribute('data-cid'), query['type'], query['governorate'], query['quism'], query['shiakha']])
-                        
+                        cids.append([cid.get_attribute('data-cid'), query['type'], query['governorate'], query['quism'],
+                                     query['shiakha']])
+
                     # move to next page
                     time.sleep(3)
                     try:
@@ -110,7 +110,7 @@ class Scrap(object):
 
                     # Saving CIDs in database
                     print(f'Saving CIDs to database')
-                                        
+
                     try:
                         Cids.insert(cids)
                     except:
@@ -143,7 +143,7 @@ class Scrap(object):
             # self.driver.quit()
 
             # close connection after all done
-            #QueriesDone.close_connection()
+            # QueriesDone.close_connection()
 
     def details_scrap(self, query):
         """
@@ -157,26 +157,18 @@ class Scrap(object):
         s = start_time.strftime('%H:%M:%S')
         print(f'Getting CID: {query} details, Query Start on: {s}')
         print("Navigating to Google Maps!")
-<<<<<<< HEAD
-        
-=======
-
-
-
->>>>>>> 2f5b2ee75760f9a61f87a96f546afeae0ac105a0
         self.driver.get(f'https://www.google.com/maps?cid={query}')
-        
+
         try:
             # Set data variable
             landmark_details = []
             # Get current URL to extract coordinates
             time.sleep(3)
             flag = False
-            refresher = 0   # timer to refresh page if not loaded successfully
-
+            refresher = 0  # timer to refresh page if not loaded successfully
 
             # Get landmark coordinates
-            while flag == False :
+            while flag == False:
                 url = self.driver.current_url
                 try:
                     lat = re.search(r'(?<=!3d)(.*?)(?=!4d)', url).group(0)
@@ -196,20 +188,12 @@ class Scrap(object):
                         return False
 
                     time.sleep(2)
-<<<<<<< HEAD
-
-=======
->>>>>>> 2f5b2ee75760f9a61f87a96f546afeae0ac105a0
             try:
                 # Get landmark image
                 image_container = WebDriverWait(self.driver, 10).until(
                     EC.visibility_of_all_elements_located(
-<<<<<<< HEAD
-                        (By.XPATH, '//button[contains(@class, "section-hero-header-image-hero")]'))
-=======
-                        (By.XPATH, '//div[contains(@class, "section-hero-header-image-hero")]'))
->>>>>>> 2f5b2ee75760f9a61f87a96f546afeae0ac105a0
-                )
+                        (By.XPATH, '//div[contains(@class, "section-hero-header-image-hero")]')))
+
                 for el in image_container:
                     try:
                         image = el.find_element_by_tag_name('img').get_attribute('src')
@@ -222,12 +206,7 @@ class Scrap(object):
                 # Get landmark title
                 title_container = WebDriverWait(self.driver, 10).until(
                     EC.presence_of_element_located(
-<<<<<<< HEAD
-                        (By.XPATH, '//h1[contains(@class, "section-hero-header-title-title")]'))
-=======
-                        (By.XPATH, '//h1[contains(@class, "header-title-title")]'))
->>>>>>> 2f5b2ee75760f9a61f87a96f546afeae0ac105a0
-                )
+                        (By.XPATH, '//h1[contains(@class, "header-title-title")]')))
                 name = title_container.find_element_by_tag_name('span').text
             except Exception as e:
                 print("Cannot find landmark name")
@@ -237,31 +216,33 @@ class Scrap(object):
                 # Get landmark sub-title
                 sub_title_container = WebDriverWait(self.driver, 10).until(
                     EC.presence_of_element_located(
-                        (By.XPATH, '//h2[contains(@class, "section-hero-header-title-subtitle")]'))
+                        (By.XPATH, '//h2[contains(@class, "header-title")]'))
                 )
                 sub_name = sub_title_container.find_element_by_tag_name('span').text
             except Exception as e:
                 sub_name = None
+                print('Sub name not found')
 
             try:
                 # Get landmark reviews and user total reviews
                 reviews_container = WebDriverWait(self.driver, 10).until(
-                    EC.presence_of_element_located((By.XPATH, '//div[@class="section-rating"]'))
+                    EC.presence_of_element_located((By.XPATH, '//div[@jsaction="pane.rating.moreReviews"]'))
                 )
-                reviews = reviews_container.find_element_by_xpath('//span[@class="section-star-display"]').text
+                reviews = reviews_container.find_element_by_tag_name('span').text
                 user_total_reviews = reviews_container.find_element_by_xpath(
                     '//button[@jsaction="pane.rating.moreReviews"]').text
                 user_total_reviews = re.search(r'\d+', user_total_reviews).group(0)
             except Exception as e:
                 reviews = None
                 user_total_reviews = None
+                print('Cannot find reviews')
 
             try:
                 # Get landmark type
-                type_container = reviews_container.find_element_by_xpath('//span[@class="section-rating-term"]')
-                type = type_container.find_element_by_xpath('//button[@jsaction="pane.rating.category"]').text
+                type = self.driver.find_element_by_xpath('//button[@jsaction="pane.rating.category"]').text
             except:
                 type = None
+                print('Cannot find type')
 
             try:
                 # Getting landmark data
@@ -281,25 +262,6 @@ class Scrap(object):
                 time.sleep(2)
                 for data in info_data:
                     if data.get_attribute('data-item-id') == 'address' and address_en is None:
-<<<<<<< HEAD
-                        value = data.find_element_by_xpath('.//div[contains(@class, "__primary-text")]')
-                        address_en = value.text
-
-                    elif data.get_attribute('data-item-id') == 'laddress' and address_ar is None:
-                        value = data.find_element_by_xpath('.//div[contains(@class, "__primary-text")]')
-                        address_ar = value.text
-
-                    elif data.get_attribute('data-item-id') == 'authority' and website is None:
-                        value = data.find_element_by_xpath('.//div[contains(@class, "__primary-text")]')
-                        website = value.text
-
-                    elif 'phone:' in data.get_attribute('data-item-id') and phone_number is None:
-                        value = data.find_element_by_xpath('.//div[contains(@class, "__primary-text")]')
-                        phone_number = value.text
-
-                    elif data.get_attribute('data-item-id') == 'oloc' and plus_code is None:
-                        value = data.find_element_by_xpath('.//div[contains(@class, "__primary-text")]')
-=======
                         value = data.find_element_by_xpath('.//div[contains(@class, "QSFF4-text")]')
                         address_en = value.text
 
@@ -317,13 +279,10 @@ class Scrap(object):
 
                     elif data.get_attribute('data-item-id') == 'oloc' and plus_code is None:
                         value = data.find_element_by_xpath('.//div[contains(@class, "QSFF4-text")]')
->>>>>>> 2f5b2ee75760f9a61f87a96f546afeae0ac105a0
                         plus_code = value.text
-
             except Exception as e:
                 print("Cannot find landmark information!" + str(e))
 
-            # Saving data to the database
             landmark_details.append(
                 [query, name, sub_name, lat, lng, reviews, user_total_reviews, type, address_en, address_ar, plus_code,
                  phone_number, website, image])
