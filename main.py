@@ -4,23 +4,15 @@ import re
 from models.Cids import Cids
 
 # Reading data csv file
-df = pd.read_csv('clear_data_gathering.csv', sep=',')
+df = pd.read_csv('Geomarketing Cairo Governorate.csv', sep=',')
 
 # Type to search for
-types = ['GYM',
-         'Fruit and Vegetable Store',
-         'Grocery Store',
-         'Nutritionist',
-         'Organic Food Store',
-         'Physical therapy clinic',
-         'Physician',
-         'Restaurant',
-         'Shopping Mall',
-         'store',
-         'Supermarket',
-         'Vitamin & Supplements Store',
-         'ATM',
-         'BANK']
+types = ["Logistics Service",
+    "Shipping Company",
+    "Shipping Service",
+    "Trucking Company",
+    "Vehicle Shipping Agent",
+    "Freight Forwarding Service"]
 
 # Starting program and looping through dataframe rows
 queries = []
@@ -31,9 +23,16 @@ for index, row in df.iterrows():
         # Building search query
         rerun_query = True
         query = {}
-        query['query'] = f'{type} in {row["quism"]}, {row["governorate"]}'.strip()
+        query['query'] = f'{type} in {row["shiakha"]} {row["quism"]}, {row["governorate"]}'.strip()
         query['query'] = re.sub(' +', ' ', query['query'])
         query['type'] = type
+        query['governorate'] = row['governorate']
+        query['quism'] = row['quism']
+        if row["shiakha"]:
+            query['shiakha'] = row["shiakha"]
+        else:
+            query['shiakha'] = None
+        #query['shiakha'] = None
         # Remove any extra spaces in the query
         queries.append(query)
 
@@ -75,10 +74,12 @@ elif scraping_type == '2':
         scraping_type = input('Your choice: ')
 
     if landmark_scrap == '1':
-        for cid in Cids.where({'type': 'store'}).get():
+        print("\nCollecting CIDs already scraped...")
+        for cid in Cids.where({'governorate': 'Cairo Governorate', 'is_corrupted': 0}).get():
             details_scraping(cid[1])
 
     elif landmark_scrap == '2':
         print('Sorry, This option is not functioning yet!!')
         print('Program terminated...')
         exit()
+

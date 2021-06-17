@@ -7,6 +7,7 @@ from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 from models.QueriesDone import QueriesDone
 from models.Landmark import Landmark
 from models.Cids import Cids
@@ -30,18 +31,25 @@ class Scrap(object):
             driver_options = webdriver.ChromeOptions()
             driver_options.add_argument("--lang=en_UK")
             driver_options.add_argument('disable-infobars')
-            return webdriver.Chrome(driver_path, chrome_options=driver_options)
+            caps = DesiredCapabilities().CHROME
+            caps["pageLoadStrategy"] = "eager"  #  complete
+            return webdriver.Chrome(driver_path, chrome_options=driver_options, desired_capabilities=caps)
 
     def run(self, query):
 
         self.driver = self.launch_driver()
         # Check the type of scraping running
         # MassScraping Class
-        if self.__class__.__name__ == 'MassScraping':
-            self.mass_scrap(query)
+        try:
+            if self.__class__.__name__ == 'MassScraping':
+                self.mass_scrap(query)
 
-        elif self.__class__.__name__ == 'DetailsScraping':
-            self.details_scrap(query)
+            elif self.__class__.__name__ == 'DetailsScraping':
+                self.details_scrap(query)
+        except:
+            # close connection after all done
+            QueriesDone.close_connection()
+
 
     def mass_scrap(self, query):
         """
@@ -77,10 +85,11 @@ class Scrap(object):
                     data_cid_elements = WebDriverWait(self.driver, 10).until(
                         EC.visibility_of_all_elements_located((By.XPATH, "//a[@data-cid]"))
                     )
+                    
                     # Save cids in array
                     for cid in data_cid_elements:
-                        cids.append([cid.get_attribute('data-cid'), query['type']])
-
+                        cids.append([cid.get_attribute('data-cid'), query['type'], query['governorate'], query['quism'], query['shiakha']])
+                        
                     # move to next page
                     time.sleep(3)
                     try:
@@ -101,8 +110,12 @@ class Scrap(object):
 
                     # Saving CIDs in database
                     print(f'Saving CIDs to database')
-                    Cids.insert(cids)
-                    print(f'Data successfully saved')
+                                        
+                    try:
+                        Cids.insert(cids)
+                    except:
+                        print('Cannot Save CIDs')
+                    print(f'CIDs successfully saved')
 
                     # Saving query in database
                     QueriesDone.insert(
@@ -115,6 +128,7 @@ class Scrap(object):
                     print(f'Query Duration: {end_time - start_time}')
                     print("=".format({''}))
                     print('{:=^50}'.format(" End of Query "), '\n')
+                    self.driver.close()
                 else:
                     print('No CIDs saved!!')
             except:
@@ -128,6 +142,9 @@ class Scrap(object):
             QueriesDone.insert([[query['query'], datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'), 0, 'cid']])
             # self.driver.quit()
 
+            # close connection after all done
+            #QueriesDone.close_connection()
+
     def details_scrap(self, query):
         """
         Details scraping code
@@ -140,19 +157,20 @@ class Scrap(object):
         s = start_time.strftime('%H:%M:%S')
         print(f'Getting CID: {query} details, Query Start on: {s}')
         print("Navigating to Google Maps!")
-
-        # Open Google Search and enter the query
+        
         self.driver.get(f'https://www.google.com/maps?cid={query}')
-
+        
         try:
             # Set data variable
             landmark_details = []
             # Get current URL to extract coordinates
             time.sleep(3)
             flag = False
+            refresher = 0   # timer to refresh page if not loaded successfully
+
 
             # Get landmark coordinates
-            while flag == False:
+            while flag == False :
                 url = self.driver.current_url
                 try:
                     lat = re.search(r'(?<=!3d)(.*?)(?=!4d)', url).group(0)
@@ -160,6 +178,17 @@ class Scrap(object):
                     flag = True
                 except Exception as e:
                     print('Trying to get landmark coordinates!')
+                    if refresher < 10:
+                        refresher += 1
+                    elif refresher == 10:
+                        self.driver.refresh()
+                        refresher += 1
+                    else:
+                        print('This CID seems to be corrupted')
+                        Cids.where({'cid': query}).update({'is_corrupted': 1})
+                        print('corrupted CID updated...')
+                        return False
+
                     time.sleep(2)
 
             try:

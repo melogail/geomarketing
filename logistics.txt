@@ -1,0 +1,7 @@
+["Logistics Service",
+"Shipping Company",
+"Shipping Service",
+"Trucking Company",
+"Vehicle Shipping Agent",
+"Freight Forwarding Service",
+]
