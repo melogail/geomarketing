@@ -157,7 +157,13 @@ class Scrap(object):
         s = start_time.strftime('%H:%M:%S')
         print(f'Getting CID: {query} details, Query Start on: {s}')
         print("Navigating to Google Maps!")
+<<<<<<< HEAD
         
+=======
+
+
+
+>>>>>>> 2f5b2ee75760f9a61f87a96f546afeae0ac105a0
         self.driver.get(f'https://www.google.com/maps?cid={query}')
         
         try:
@@ -190,12 +196,19 @@ class Scrap(object):
                         return False
 
                     time.sleep(2)
+<<<<<<< HEAD
 
+=======
+>>>>>>> 2f5b2ee75760f9a61f87a96f546afeae0ac105a0
             try:
                 # Get landmark image
                 image_container = WebDriverWait(self.driver, 10).until(
                     EC.visibility_of_all_elements_located(
+<<<<<<< HEAD
                         (By.XPATH, '//button[contains(@class, "section-hero-header-image-hero")]'))
+=======
+                        (By.XPATH, '//div[contains(@class, "section-hero-header-image-hero")]'))
+>>>>>>> 2f5b2ee75760f9a61f87a96f546afeae0ac105a0
                 )
                 for el in image_container:
                     try:
@@ -209,7 +222,11 @@ class Scrap(object):
                 # Get landmark title
                 title_container = WebDriverWait(self.driver, 10).until(
                     EC.presence_of_element_located(
+<<<<<<< HEAD
                         (By.XPATH, '//h1[contains(@class, "section-hero-header-title-title")]'))
+=======
+                        (By.XPATH, '//h1[contains(@class, "header-title-title")]'))
+>>>>>>> 2f5b2ee75760f9a61f87a96f546afeae0ac105a0
                 )
                 name = title_container.find_element_by_tag_name('span').text
             except Exception as e:
@@ -264,6 +281,7 @@ class Scrap(object):
                 time.sleep(2)
                 for data in info_data:
                     if data.get_attribute('data-item-id') == 'address' and address_en is None:
+<<<<<<< HEAD
                         value = data.find_element_by_xpath('.//div[contains(@class, "__primary-text")]')
                         address_en = value.text
 
@@ -281,6 +299,25 @@ class Scrap(object):
 
                     elif data.get_attribute('data-item-id') == 'oloc' and plus_code is None:
                         value = data.find_element_by_xpath('.//div[contains(@class, "__primary-text")]')
+=======
+                        value = data.find_element_by_xpath('.//div[contains(@class, "QSFF4-text")]')
+                        address_en = value.text
+
+                    elif data.get_attribute('data-item-id') == 'laddress' and address_ar is None:
+                        value = data.find_element_by_xpath('.//div[contains(@class, "QSFF4-text")]')
+                        address_ar = value.text
+
+                    elif data.get_attribute('data-item-id') == 'authority' and website is None:
+                        value = data.find_element_by_xpath('.//div[contains(@class, "QSFF4-text")]')
+                        website = value.text
+
+                    elif 'phone:' in data.get_attribute('data-item-id') and phone_number is None:
+                        value = data.find_element_by_xpath('.//div[contains(@class, "QSFF4-text")]')
+                        phone_number = value.text
+
+                    elif data.get_attribute('data-item-id') == 'oloc' and plus_code is None:
+                        value = data.find_element_by_xpath('.//div[contains(@class, "QSFF4-text")]')
+>>>>>>> 2f5b2ee75760f9a61f87a96f546afeae0ac105a0
                         plus_code = value.text
 
             except Exception as e:
